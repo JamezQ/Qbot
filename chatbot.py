@@ -4,6 +4,7 @@ import json
 from BeautifulSoup import BeautifulSoup
 import time
 from html2text import html2text
+import random
 
 version = "1.5.3"
 ########################################### LOGIN
@@ -34,20 +35,20 @@ while True:
 			'''Get and/or parse chat data, and return formatted data in an array'''
 			chatlist = []
 			if not new_chat_text: #If data to parse has not been given right to the function. Get it from u413.com.
-				cmd = """curl -b cookies.txt -c cookies.txt -H 'Content-Type: application/json' -d '[{"Channel": "QBOT","Minimized": false}]' http://u413.com/Terminal/MainUpdate 2> /dev/null"""
+				cmd = """curl -b cookies.txt -c cookies.txt -H 'Content-Type: application/json' -d '[{"Channel": "GENERAL","Minimized": false}]' http://u413.com/Terminal/MainUpdate 2> /dev/null"""
 				chat_text = commands.getoutput(cmd)
 			else:
 				chat_text = new_chat_text
 			chat_text = json.loads(chat_text) # Put it all into json format, so we can pull the needed data from it
 			try: #If data has been givin to the funtion, use that instead. Right now this is only used for getting what the bot sends and printing it out
 				 #but it can be extented to allow parsing any data given to it.
-				a = chat_text['ChannelDisplayArray']['QBOT'][0]['Text']
+				a = chat_text['ChannelDisplayArray']['GENERAL'][0]['Text']
 			except KeyError:
 				return None #No new chat data is available, return None
 			i=0
 			try:
 				while True:
-					soup = BeautifulSoup(chat_text['ChannelDisplayArray']['QBOT'][i]['Text']) #Begin pulling the chats for parsing, one at a time.
+					soup = BeautifulSoup(chat_text['ChannelDisplayArray']['GENERAL'][i]['Text']) #Begin pulling the chats for parsing, one at a time.
 					username = soup.contents[1].contents[0] # Get the username from this chat dialog by getting the contents of the html
 					timestamp = soup.contents[-1].contents[0] # Get the last option, which is always the timestamp
 					x = 1
@@ -115,23 +116,26 @@ while True:
 					return [True,Args]
 				else:
 					return [False]
-		def Send(data): 
+		def Send(data,name="dave"): 
 			'''Send text to chat'''
-			###################################################
-			# Below I create a file with my command then use
-			# the file with curl to send data to chat, they
-			# allows me to send strings with characters such
-			# as a single quote.
-			####################################################
-			filename = "senq.txt"
-			file = open(filename, 'w') # Overwrite the file everythime
-			file.write("""{"CommandString": "channel QBOT """+data+""""}\n""")
-			file.close
-			# For some reason the file has to be opened and closed again for this to work
-			file = open(filename, 'r')
-			file.close
-			cmd = """curl -b cookies.txt -c cookies.txt -H 'Content-Type: application/json' -d @senq.txt http://u413.com/Terminal/ExecuteCommand 2> /dev/null"""
-			mystring = commands.getoutput(cmd)
+			try:
+				###################################################
+				# Below I create a file with my command then use
+				# the file with curl to send data to chat, they
+				# allows me to send strings with characters such
+				# as a single quote.
+				####################################################
+				filename = "senq.txt"
+				file = open(filename, 'w') # Overwrite the file everythime
+				file.write("""{"CommandString": "channel GENERAL """+data+""""}\n""")
+				file.close
+				# For some reason the file has to be opened and closed again for this to work
+				file = open(filename, 'r')
+				file.close
+				cmd = """curl -b cookies.txt -c cookies.txt -H 'Content-Type: application/json' -d @senq.txt http://u413.com/Terminal/ExecuteCommand 2> /dev/null"""
+				mystring = commands.getoutput(cmd)
+			except:
+				Send("I can't do that "+name+".")
 			mychat = GetChat(mystring) #Send data to GetChat() to parse, mychat = the array.
 			if mychat is not None: #Use same method as below to add data to terminal
 				for data in mychat:
@@ -174,12 +178,23 @@ while True:
 					if Command(m, "say")[0]: #If the user send this command
 						args = Command(m, "say")[1]
 						if args: #If there are any arguments
-							Send(args) # Send argumens to chat.
+							Send(args,u) # Send argumens to chat.
 					if Command(m, "cowsay")[0]:
 						args = Command(m, "cowsay")[1]
 						if args:
 							cow_pic = """\\n ._______(o o) - """ + args + """\\n (_u413_\\/.(__) \\n .||....|| """
-							Send(cow_pic)
+							Send(cow_pic,u)
+					if Command(m, "fortune")[0]:
+						Send(random.choice(list(open("fortune.txt"))).rstrip("\n").replace("\r",""))
+					if Command(m, "Qfortune")[0]:
+						args = Command(m, "Qfortune")[1]
+						if not args:
+							Send(random.choice(list(open("Qfortune.txt"))).rstrip("\n").replace("\r",""))
+						else:
+							g = open("Qfortune.txt",'a')
+							g.write((str(args)+" -- "+u).replace("\n","").replace("\r","")+"\n")
+							g.close()
+							Send("Fortune: "+args+" added")
 					############################################
 					# End actual bot command code
 					############################################
