@@ -5,7 +5,7 @@ from BeautifulSoup import BeautifulSoup
 import time
 from html2text import html2text
 
-version = "1.5.2"
+version = "1.5.3"
 ########################################### LOGIN
 # Because this is public the password has
 # been removed, to run the bot replace:
@@ -175,7 +175,11 @@ while True:
 						args = Command(m, "say")[1]
 						if args: #If there are any arguments
 							Send(args) # Send argumens to chat.
-					
+					if Command(m, "cowsay")[0]:
+						args = Command(m, "cowsay")[1]
+						if args:
+							cow_pic = """\\n ._______(o o) - """ + args + """\\n (_u413_\\/.(__) \\n .||....|| """
+							Send(cow_pic)
 					############################################
 					# End actual bot command code
 					############################################
