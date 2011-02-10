@@ -1,0 +1,8 @@
+A computer scientist is someone who fixes things that aren't broken.
+A computer without COBOL and Fortran is like a piece of chocolate cake without ketchup and mustard.
+A debugged program is one for which you have not yet found the conditions that make it fail.
+A hacker does for love what others would not do for money.
+A language that doesn't affect the way you think about programming is not worth knowing.
+A large number of installed systems work by fiat.  That is, they work by being declared to work. -- Anatol Holt
+A LISP programmer knows the value of everything, but the cost of nothing. -- Alan Perlis
+A person who is more than casually interested in computers should be well schooled in machine language, since it is a fundamental part of a computer. -- Donald Knuth
