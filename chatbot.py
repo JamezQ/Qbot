@@ -6,7 +6,7 @@ import time
 from html2text import html2text
 import random
 
-version = "1.5.3"
+version = "1.5.4"
 ########################################### LOGIN
 # Because this is public the password has
 # been removed, to run the bot replace:
@@ -35,20 +35,20 @@ while True:
 			'''Get and/or parse chat data, and return formatted data in an array'''
 			chatlist = []
 			if not new_chat_text: #If data to parse has not been given right to the function. Get it from u413.com.
-				cmd = """curl -b cookies.txt -c cookies.txt -H 'Content-Type: application/json' -d '[{"Channel": "GENERAL","Minimized": false}]' http://u413.com/Terminal/MainUpdate 2> /dev/null"""
+				cmd = """curl -b cookies.txt -c cookies.txt -H 'Content-Type: application/json' -d '[{"Channel": "QBOT","Minimized": false}]' http://u413.com/Terminal/MainUpdate 2> /dev/null"""
 				chat_text = commands.getoutput(cmd)
 			else:
 				chat_text = new_chat_text
 			chat_text = json.loads(chat_text) # Put it all into json format, so we can pull the needed data from it
 			try: #If data has been givin to the funtion, use that instead. Right now this is only used for getting what the bot sends and printing it out
 				 #but it can be extented to allow parsing any data given to it.
-				a = chat_text['ChannelDisplayArray']['GENERAL'][0]['Text']
+				a = chat_text['ChannelDisplayArray']['QBOT'][0]['Text']
 			except KeyError:
 				return None #No new chat data is available, return None
 			i=0
 			try:
 				while True:
-					soup = BeautifulSoup(chat_text['ChannelDisplayArray']['GENERAL'][i]['Text']) #Begin pulling the chats for parsing, one at a time.
+					soup = BeautifulSoup(chat_text['ChannelDisplayArray']['QBOT'][i]['Text']) #Begin pulling the chats for parsing, one at a time.
 					username = soup.contents[1].contents[0] # Get the username from this chat dialog by getting the contents of the html
 					timestamp = soup.contents[-1].contents[0] # Get the last option, which is always the timestamp
 					x = 1
@@ -127,7 +127,7 @@ while True:
 				####################################################
 				filename = "senq.txt"
 				file = open(filename, 'w') # Overwrite the file everythime
-				file.write("""{"CommandString": "channel GENERAL """+data+""""}\n""")
+				file.write("""{"CommandString": "channel QBOT """+data+""""}\n""")
 				file.close
 				# For some reason the file has to be opened and closed again for this to work
 				file = open(filename, 'r')
@@ -147,6 +147,50 @@ while True:
 		##################################################
 		# End bot function area.
 		##################################################
+		###################################################
+		# Begin actual bot command code
+		#
+		# All chat commands should be placed here.
+		#
+		# Any complexities should be placed in the bot
+		# function area. All commands should be simple,
+		# short and most of their work should be done
+		# by calling functions in the bot function area.
+		# 
+		# This is so a person can create their own 
+		# functions without having to understand the 
+		# whole bot. They should be able to easily 
+		# manipulate exsisting functions to make their 
+		# own. And it should be mostly as easy as 
+		#            Test--->Action--->Send
+		# without them having to understand what those do.
+		###################################################
+		def Getoutput(u,m,t):
+			if Command(m, "say")[0]: #If the user send this command
+				args = Command(m, "say")[1]
+				if args: #If there are any arguments
+					return(args) # Send argumens to chat.
+			elif Command(m, "cowsay")[0]:
+				args = Command(m, "cowsay")[1]
+				if args:
+					cow_pic = """\\n ._______(o o) - """ + args + """\\n (_u413_\\/.(__) \\n .||....|| """
+					return(cow_pic)
+			elif Command(m, "fortune")[0]:
+				return(random.choice(list(open("fortune.txt"))).rstrip("\n").replace("\r",""))
+			elif Command(m, "Qfortune")[0]:
+				args = Command(m, "Qfortune")[1]
+				if not args:
+					return(random.choice(list(open("Qfortune.txt"))).rstrip("\n").replace("\r",""))
+				else:
+					g = open("Qfortune.txt",'a')
+					g.write((str(args)+" -- "+u).replace("\n","").replace("\r","")+"\n")
+					g.close()
+					return("Fortune: "+args+" added")
+			else:
+				return None
+		############################################
+		# End actual bot command code
+		############################################
 		while True:
 			Chat = GetChat() #Get new chat data.
 			if Chat is not None: #If new chat data exists
@@ -156,48 +200,25 @@ while True:
 					t = data[2] #TimeStamp
 					# Print out data to terminal, with colors
 					print "\033[2m" + "<" + "\033[0m"+"\033[1m" + "\033[40m" + data[0] + "\033[0m"+"\033[2m" + ">" + "\033[0m","\033[40m" +  data[1] + "\033[0m","\033[1;30m" + data[2] + "\033[0m"
-					###################################################
-					# Begin actual bot command code
-					#
-					# All chat commands should be placed here.
-					#
-					# Any complexities should be placed in the bot
-					# function area. All commands should be simple,
-					# short and most of their work should be done
-					# by calling functions in the bot function area.
-					# 
-					# This is so a person can create their own 
-					# functions without having to understand the 
-					# whole bot. They should be able to easily 
-					# manipulate exsisting functions to make their 
-					# own. And it should be mostly as easy as 
-					#            Test--->Action--->Send
-					# without them having to understand what those do.
-					###################################################
-					
-					if Command(m, "say")[0]: #If the user send this command
-						args = Command(m, "say")[1]
-						if args: #If there are any arguments
-							Send(args,u) # Send argumens to chat.
-					if Command(m, "cowsay")[0]:
-						args = Command(m, "cowsay")[1]
-						if args:
-							cow_pic = """\\n ._______(o o) - """ + args + """\\n (_u413_\\/.(__) \\n .||....|| """
-							Send(cow_pic,u)
-					if Command(m, "fortune")[0]:
-						Send(random.choice(list(open("fortune.txt"))).rstrip("\n").replace("\r",""))
-					if Command(m, "Qfortune")[0]:
-						args = Command(m, "Qfortune")[1]
-						if not args:
-							Send(random.choice(list(open("Qfortune.txt"))).rstrip("\n").replace("\r",""))
+					toeval = m
+					Output = ""
+					while True:
+						reveval = toeval[::-1]
+						ckplace = len(toeval)-reveval.find(CK)-1
+						if ckplace is not len(toeval):
+							eval = toeval[ckplace:]
+							Output = str("".join(Getoutput(u,eval,t)))
+							toeval = toeval[:ckplace]+Output
+							print toeval
 						else:
-							g = open("Qfortune.txt",'a')
-							g.write((str(args)+" -- "+u).replace("\n","").replace("\r","")+"\n")
-							g.close()
-							Send("Fortune: "+args+" added")
-					############################################
-					# End actual bot command code
-					############################################
+							break
+					if Output:
+						Output = str("".join(Output))
+						if Output[:1] == "/":
+							if Output[:3] != "/me":
+								Send("Screw you "+u+".",u)
+								continue
+						Send(Output,u)
 			time.sleep(7) #Try to get new chat every 7 seconds.
 		#####################################
 		#
@@ -205,5 +226,6 @@ while True:
 		#
 		#####################################
 			
-	except:
+	except Exception,e:
+		print e
 		continue
