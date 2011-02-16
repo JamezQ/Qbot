@@ -47,7 +47,7 @@ def Command(data, command):
 		return {'Command':False,'Args': False}
 def main():
 	client = u413lib.createclient()
-	if not client.login('qbot','Qpass'):
+	if not client.login('user','pass'):
 		exit()
 	chat = client.joinchat('general')
 	client.sendRawCommand('channel general')
@@ -61,6 +61,23 @@ def main():
 						if command['Args']:
 							print command['Args']
 							chat.send(command['Args'].replace('U413.com','http://www.u413.com'))
+					command = Command(text['Msg'],'hw')
+					if command['Command']:
+						if command['Args']:
+							chat.send('hw args')
+						else:
+							string = 'Hello World!'
+							for i in range(len(string)):
+								chat.send(string[0:i])
+					command = Command(text['Msg'],'roll')
+					if command['Command']:
+						if command['Args']:
+							pass
+						else:
+							import random
+							num = random.choice(range(100))
+							chat.send(str(num))
+								
 		time.sleep(7)
 		print 'checking again...'
 	return 0
