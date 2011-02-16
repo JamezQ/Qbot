@@ -29,22 +29,19 @@
 # !roll !spin !google !spelz !copy !werewolf !connect4 !holdem !blackjack
 #
 ##################################
-u = "ƀ"
 import u413lib
 import time
+import random
 CK = '!'
-def Command(data, command):
-	Command_String = CK+command.lower()
-	test_data = data.split()
-	if test_data[0].lower() == Command_String:
+def Command(data):
+	test_data = data.split(' ')
+	if test_data[0][0] == CK:
 		if len(test_data) > 1:
-			args = test_data[1:]
-			args = ' '.join(args)
-			return {'Command':True,'Args': args}
+			return {'Command': test_data[0][1:].lower(),'Args': ' '.join(test_data[1:])}
 		else:
-			return {'Command':True,'Args': False}
+			return {'Command': test_data[0][1:].lower(),'Args': False}
 	else:
-		return {'Command':False,'Args': False}
+			return {'Command': False,'Args': False}
 def main():
 	client = u413lib.createclient()
 	if not client.login('user','pass'):
@@ -56,25 +53,22 @@ def main():
 		if chatget:
 			for text in chatget:
 				if text['Type'] == 'Message':
-					command = Command(text['Msg'],'say')
-					if command['Command']:
+					command = Command(text['Msg'])
+					if command['Command'] == 'say':
 						if command['Args']:
 							print command['Args']
 							chat.send(command['Args'].replace('U413.com','http://www.u413.com'))
-					command = Command(text['Msg'],'hw')
-					if command['Command']:
+					elif command['Command'] == 'hw':
 						if command['Args']:
 							chat.send('hw args')
 						else:
 							string = 'Hello World!'
-							for i in range(len(string)):
+							for i in range(len(string)+1):
 								chat.send(string[0:i])
-					command = Command(text['Msg'],'roll')
-					if command['Command']:
+					elif command['Command'] == 'roll':
 						if command['Args']:
 							pass
 						else:
-							import random
 							num = random.choice(range(100))
 							chat.send(str(num))
 								

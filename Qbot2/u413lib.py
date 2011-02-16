@@ -147,6 +147,11 @@ def parse_chat(parsedata):
 						message_dict['Msg'] += text.contents[0]
 					except AttributeError:
 						message_dict['Msg'] += text
+					except IndexError:
+						if str(text) == "<br />":
+							message_dict['Msg'] += '\n'
+						else:
+							raise
 				message_dict['Msg'] = message_dict['Msg'][5:-1]
 				if message_dict['Msg'][-1] == " ":
 					message_dict['Msg'] = message_dict['Msg'][:-1]
@@ -157,6 +162,11 @@ def parse_chat(parsedata):
 						message_dict['Msg'] += text.contents[0]
 					except AttributeError:
 						message_dict['Msg'] += text
+					except IndexError:
+						if str(text) == "<br />":
+							message_dict['Msg'] += '\n'
+						else:
+							raise
 				if message_dict['Msg'][-1] == " ":
 					message_dict['Msg'] = message_dict['Msg'][:-1]
 			elif message_dict['Type'] is u"Announcement":
